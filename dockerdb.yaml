@@ -1,0 +1,41 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "dockerdb"
+  namespace: "default"
+  labels:
+    app: "dockerdb"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "dockerdb"
+  template:
+    metadata:
+      labels:
+        app: "dockerdb"
+    spec:
+      containers:
+      - name: "dockerdb-sha256-1"
+        image: "gcr.io/gcpdemo-334906/github.com/ayeshavempalli/dockerdb@sha256:7c738e54bd223f05c4b8974c546f1591adc2061817074990f640f437718f6af0"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "dockerdb-hpa-jpws"
+  namespace: "default"
+  labels:
+    app: "dockerdb"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "dockerdb"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
